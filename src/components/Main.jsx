@@ -1,5 +1,6 @@
 import React from 'react'
 import "./Main.css"
+import moment from 'moment'
 
 class Main extends React.Component {
     constructor(props) {
@@ -27,7 +28,8 @@ class Main extends React.Component {
             if (fetchResult.ok) {
                 this.setState({
                     isLoaded: true,
-                    weatherData: result
+                    weatherData: result,
+                    searchHistory: { ...this.state.searchHistory, result }
                 })
                 console.log(result)
                 console.log(this.state)
@@ -35,29 +37,8 @@ class Main extends React.Component {
             }
         }
         catch (error) {
-            // console.log(error)
             return null
         }
-        // await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.country}&appid=${apiKey}`)
-        // .then(res => res.json())
-        //     .then(
-        //         (result) => {
-        //             console.log(result)
-        //             this.setState({
-        //                 isLoaded: true,
-        //                 weatherData: result
-        //             })
-        //             console.log(this.state.weatherData)
-        //         },
-        //         (error) => {
-        //             this.setState({
-        //                 isLoaded: true,
-        //                 error
-        //             });
-        //             console.log('error')
-        //             console.log(this.state)
-        //         }
-        //     )
     }
 
     handleChange(e, elemName) {
@@ -74,6 +55,11 @@ class Main extends React.Component {
         console.log(this.state)
     }
 
+    dateConverter(time) {
+        let timeStamp = moment.unix(time).format("YYYY-MM-DD HH:mm")
+        return timeStamp
+    }
+
     render() {
         return (
             <div className="container">
@@ -81,24 +67,27 @@ class Main extends React.Component {
                     <h2>Today's Weather</h2>
                 </div>
                 <hr />
-                <div className="search-area">
-                    City: <input type="text" className="font-weight-bold inputs" id="input-city" value={this.state.city} onChange={e => { this.handleChange(e, 'city') }}></input>
+                <div className="page-display">
+                    <div className="search-area">
+                        City: <input type="text" className="font-weight-bold inputs" id="input-city" value={this.state.city} onChange={e => { this.handleChange(e, 'city') }}></input>
                     Country: <input type="text" className="font-weight-bold inputs" id="input-country" value={this.state.country} onChange={e => { this.handleChange(e, 'country') }}></input>
-                    <button onClick={this.fetchData}>Search</button>
-                    <button onClick={this.clearInput}>Clear</button>
+                        <button onClick={this.fetchData}>Search</button>
+                        <button onClick={this.clearInput}>Clear</button>
+                    </div>
+                    <div className="display-weather">
+                        <h4 className="location-name">{this.state.weatherData.name},</h4>
+                        <h4 className="location-name">{this.state.weatherData.sys && this.state.weatherData.sys.country}</h4>
+                        <h2>{this.state.weatherData.weather && this.state.weatherData.weather[0].main}</h2>
+                        <h4>Description: {this.state.weatherData.main && this.state.weatherData.weather[0].description}</h4>
+                        <h4 className="temperature">Temperature: {this.state.weatherData.main && this.state.weatherData.main.temp_min}°C ~</h4>
+                        <h4 className="temperature"> {this.state.weatherData.main && this.state.weatherData.main.temp_max}°C</h4>
+                        <h4>Humidity: {this.state.weatherData.main && this.state.weatherData.main.humidity}%</h4>
+                        <h4>Time: {this.dateConverter(this.state.weatherData.dt)} PM</h4>
+                    </div>
                 </div>
-                <div className="display-weather">
-                    <h4 className="location-name">{this.state.weatherData.name},</h4>
-                    <h4 className="location-name">{this.state.weatherData.sys.country}</h4>
+                <div className="search-history">
                     {/* {
-                        this.state.weatherData.length > 0 ? (
-                            this.state.weatherData.weather.map(weather => {
-                                return (
-                                    <div>{weather.main}</div>
-                                )
-                            })
-                        ) :
-                            ""
+                        this.state.searchHistory
                     } */}
                 </div>
             </div>
