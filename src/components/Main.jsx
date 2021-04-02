@@ -13,7 +13,8 @@ class Main extends React.Component {
             city: "Singapore",
             weatherData: [],
             searchHistory: []
-        }
+        };
+        this.fetchData = this.fetchData.bind(this)
     }
 
     componentDidMount() {
@@ -22,6 +23,7 @@ class Main extends React.Component {
 
     async fetchData() {
         let apiKey = '0c4f6e87688f2e5be796c822e9aa6986'
+        console.log(this.state)
         try {
             const fetchResult = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.country}&appid=${apiKey}`)
             const result = await fetchResult.json() //parsing the response
@@ -29,7 +31,7 @@ class Main extends React.Component {
                 this.setState({
                     isLoaded: true,
                     weatherData: result,
-                    searchHistory: { ...this.state.searchHistory, result }
+                    searchHistory: [...this.state.searchHistory, result]
                 })
                 console.log(result)
                 console.log(this.state)
@@ -37,6 +39,33 @@ class Main extends React.Component {
             }
         }
         catch (error) {
+            console.log("error")
+            return null
+        }
+    }
+
+    async fetchHistory(city, country) {
+        let apiKey = '0c4f6e87688f2e5be796c822e9aa6986'
+        this.setState({
+            city: city,
+            country: country
+        })
+        try {
+            const fetchResult = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.country}&appid=${apiKey}`)
+            const result = await fetchResult.json() //parsing the response
+            if (fetchResult.ok) {
+                this.setState({
+                    isLoaded: true,
+                    weatherData: result,
+                    searchHistory: [...this.state.searchHistory, result]
+                })
+                console.log(result)
+                console.log(this.state)
+                return result
+            }
+        }
+        catch (error) {
+            console.log("error")
             return null
         }
     }
@@ -58,6 +87,18 @@ class Main extends React.Component {
     dateConverter(time) {
         let timeStamp = moment.unix(time).format("YYYY-MM-DD HH:mm")
         return timeStamp
+    }
+    timeConverter(time) {
+        let timeStamp = moment.unix(time).format("H:mm")
+        return timeStamp
+    }
+
+    removeHistory(e) {
+        this.setState({
+            searchHistory: this.state.searchHistory.filter(function (history) {
+                return history !== e.target.value
+            })
+        })
     }
 
     render() {
@@ -86,9 +127,25 @@ class Main extends React.Component {
                     </div>
                 </div>
                 <div className="search-history">
-                    {/* {
-                        this.state.searchHistory
-                    } */}
+                    {
+                        this.state.searchHistory.length > 0 ? (
+                            this.state.searchHistory.map(history => {
+                                return (
+                                    <div className="history row mt-5">
+                                        <div className="location col-6">
+                                            {history.name},
+                                            {history.sys.country}
+                                        </div>
+                                        <div className="time col-6">
+                                            {this.timeConverter(history.dt)}
+                                            <button onClick={this.fetchHistory(history.name, history.country)}>Search</button>
+                                            <button onClick={e => { this.removeHistory(e) }}>Remove</button>
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        ) : ''
+                    }
                 </div>
             </div>
         )
