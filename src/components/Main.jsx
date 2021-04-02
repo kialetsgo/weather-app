@@ -21,27 +21,43 @@ class Main extends React.Component {
 
     async fetchData() {
         let apiKey = '0c4f6e87688f2e5be796c822e9aa6986'
-        // const result = await fetch(`api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.country}&appid=${apiKey}`)
-        await fetch(`api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.country}&appid=${apiKey}`)
-            // .then(res => res.json())
-            .then(
-                (result) => {
-                    console.log(result.response)
-                    this.setState({
-                        isLoaded: true,
-                        weatherData: result
-                    })
-                    console.log(this.state.weatherData)
-                },
-                (error) => {
-                    this.setState({
-                        isLoaded: true,
-                        error
-                    });
-                    console.log('error')
-                    console.log(this.state)
-                }
-            )
+        try {
+            const fetchResult = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.country}&appid=${apiKey}`)
+            const result = await fetchResult.json() //parsing the response
+            if (fetchResult.ok) {
+                this.setState({
+                    isLoaded: true,
+                    weatherData: result
+                })
+                console.log(result)
+                console.log(this.state)
+                return result
+            }
+        }
+        catch (error) {
+            // console.log(error)
+            return null
+        }
+        // await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.country}&appid=${apiKey}`)
+        // .then(res => res.json())
+        //     .then(
+        //         (result) => {
+        //             console.log(result)
+        //             this.setState({
+        //                 isLoaded: true,
+        //                 weatherData: result
+        //             })
+        //             console.log(this.state.weatherData)
+        //         },
+        //         (error) => {
+        //             this.setState({
+        //                 isLoaded: true,
+        //                 error
+        //             });
+        //             console.log('error')
+        //             console.log(this.state)
+        //         }
+        //     )
     }
 
     handleChange(e, elemName) {
@@ -72,9 +88,18 @@ class Main extends React.Component {
                     <button onClick={this.clearInput}>Clear</button>
                 </div>
                 <div className="display-weather">
-                    <h4 className="location-name">{this.state.city},</h4>
-                    <h4 className="location-name">{this.state.country}</h4>
-                    {/* <h1>{this.state.weatherData.weather.main}</h1> */}
+                    <h4 className="location-name">{this.state.weatherData.name},</h4>
+                    <h4 className="location-name">{this.state.weatherData.sys.country}</h4>
+                    {/* {
+                        this.state.weatherData.length > 0 ? (
+                            this.state.weatherData.weather.map(weather => {
+                                return (
+                                    <div>{weather.main}</div>
+                                )
+                            })
+                        ) :
+                            ""
+                    } */}
                 </div>
             </div>
         )
