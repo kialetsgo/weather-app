@@ -94,8 +94,9 @@ class Main extends React.Component {
     }
 
     removeHistory(e) {
+        // would explore array splicing if i have more time!
         this.setState({
-            searchHistory: this.state.searchHistory.filter(function (history) {
+            searchHistory: this.state.searchHistory.find(function (history) {
                 return history !== e.target.value
             })
         })
